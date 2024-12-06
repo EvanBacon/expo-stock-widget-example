@@ -8,30 +8,41 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Generate random price changes with more realistic movements
+// Generate random price changes with controlled volatility
 const generateNewPrice = (basePrice) => {
-  const maxChange = basePrice * 0.002; // Max 0.2% change per update
-  const change = (Math.random() - 0.5) * maxChange;
+  const volatilityPercentage = 0.1; // 0.1% volatility
+  const change = basePrice * volatilityPercentage * (Math.random() * 2 - 1);
   return Number((basePrice + change).toFixed(2));
 };
 
-// Generate historical data points with realistic trends
+// Generate historical data points that maintain value range
 const generateHistoricalData = (baseValue, numPoints = 24) => {
+  const volatility = baseValue * 0.02; // 2% volatility range
+  const data = [];
   let currentValue = baseValue;
-  const volatility = 0.05; // 0.5% volatility
-  const trend = 0.01; // Slight upward trend
 
-  return new Array(numPoints).fill(0).map((_, index) => {
-    const timestamp = new Date(
-      Date.now() - (numPoints - index) * 30 * 60 * 1000
-    ); // 30-minute intervals
-    const randomChange = (Math.random() - 0.5) * 2 * volatility;
-    currentValue = currentValue * (1 + randomChange + trend);
-    return {
+  for (let i = 0; i < numPoints; i++) {
+    const timestamp = new Date(Date.now() - (numPoints - i) * 30 * 60 * 1000);
+
+    // Generate change that's mean-reverting around baseValue
+    const distanceFromBase = currentValue - baseValue;
+    const meanReversion = -distanceFromBase * 0.1; // Pull back towards base value
+    const randomWalk = (Math.random() * 2 - 1) * volatility;
+    currentValue = currentValue + meanReversion + randomWalk;
+
+    // Ensure value stays within reasonable bounds
+    currentValue = Math.max(
+      baseValue * 0.9,
+      Math.min(baseValue * 1.1, currentValue)
+    );
+
+    data.push({
       timestamp: timestamp.toISOString(),
-      value: Number(currentValue),
-    };
-  });
+      value: Number(currentValue.toFixed(2)),
+    });
+  }
+
+  return data;
 };
 
 const StockCard = ({ symbol, name, price, change }) => (
@@ -89,14 +100,14 @@ const HomePage = ({
   }));
 
   useEffect(() => {
-    // Update widget with latest data
     const openingValue = historyData[0].value;
-    const currentValue = portfolioValue;
-    const dailyChange = currentValue - openingValue;
+    const dailyChange = portfolioValue - openingValue;
     const dailyChangePercent = (dailyChange / openingValue) * 100;
 
+    setPortfolioChange(dailyChange);
+
     updateWidget({
-      currentValue,
+      currentValue: portfolioValue,
       dailyChange,
       dailyChangePercent,
       historyData,
@@ -105,24 +116,37 @@ const HomePage = ({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Update portfolio value with realistic movements
-      const newPortfolioValue = generateNewPrice(portfolioValue);
-      setPortfolioValue(newPortfolioValue);
+      // Update portfolio value with mean reversion
+      setPortfolioValue((prevValue) => {
+        const distanceFromBase = prevValue - basePortfolioValue;
+        const meanReversion = -distanceFromBase * 0.1;
+        const randomWalk = basePortfolioValue * 0.001 * (Math.random() * 2 - 1);
+        const newValue = prevValue + meanReversion + randomWalk;
+
+        // Keep value within ±10% of base value
+        return Number(
+          Math.max(
+            basePortfolioValue * 0.9,
+            Math.min(basePortfolioValue * 1.1, newValue)
+          ).toFixed(2)
+        );
+      });
 
       // Update historical data
       setHistoryData((prevHistory) => {
         const newDataPoint = {
           timestamp: new Date().toISOString(),
-          value: newPortfolioValue,
+          value: portfolioValue,
         };
         return [...prevHistory.slice(1), newDataPoint];
       });
 
-      // Update stock prices with correlated movements
+      // Update stock prices with similar mean reversion
       setStocks((prevStocks) =>
         prevStocks.map((stock) => {
-          const newPrice = generateNewPrice(parseFloat(stock.price));
-          const priceChange = ((newPrice - stock.price) / stock.price) * 100;
+          const basePrice = parseFloat(stock.price);
+          const newPrice = generateNewPrice(basePrice);
+          const priceChange = ((newPrice - basePrice) / basePrice) * 100;
           return {
             ...stock,
             price: newPrice,
@@ -133,7 +157,7 @@ const HomePage = ({
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [portfolioValue, stocks]);
+  }, [portfolioValue]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black container">
@@ -176,6 +200,7 @@ const HomePage = ({
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#98989F" }}
+                domain={["auto", "auto"]}
               />
               <Tooltip
                 contentStyle={{
