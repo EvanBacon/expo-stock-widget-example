@@ -10,7 +10,6 @@
     "newArchEnabled": true,
     "ios": {
       "appleTeamId": "QQ57RJ5UTD",
-      "supportsTablet": true,
       "bundleIdentifier": "com.bacon.stock-widget-example",
       "entitlements": {
         "com.apple.security.application-groups": ["group.bacon.data"]
@@ -23,12 +22,10 @@
       }
     },
     "web": {
-      "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
       "@bacons/apple-targets",
       [
         "expo-splash-screen",

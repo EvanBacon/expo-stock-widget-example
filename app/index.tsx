@@ -1,26 +1,22 @@
-import { StyleSheet, View, Button } from "react-native";
+import HomePage from "@/components/stockHome";
 import { updateWidget } from "@/components/updateWidget";
 
 export default function HomeScreen() {
-  const handleUpdateWidget = () => {
-    updateWidget({
-      currentValue: Math.random() * 1000,
-      dailyChange: Math.random() * 10,
-      dailyChangePercent: Math.random(),
-    });
-  };
-
   return (
-    <View style={styles.container}>
-      <Button title="Update Stock Widget" onPress={handleUpdateWidget} />
-    </View>
+    <HomePage
+      updateWidget={(props) => {
+        updateWidget({
+          currentValue: props.currentValue,
+          dailyChange: props.dailyChange,
+          dailyChangePercent: props.dailyChangePercent,
+          historyData: props.historyData,
+        });
+      }}
+      dom={{
+        textInteractionEnabled: false,
+        pullToRefreshEnabled: true,
+        forceDarkOn: true,
+      }}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
