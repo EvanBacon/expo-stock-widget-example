@@ -11,101 +11,217 @@ struct LineChart: View {
       let maxVal = points.max() ?? 1
       let scale = maxVal - minVal == 0 ? 1 : maxVal - minVal
       
-      Path { path in
-        guard let first = points.first else { return }
-        let xStep = geo.size.width / CGFloat(points.count - 1)
-        let yStart = geo.size.height - ((CGFloat(first) - CGFloat(minVal)) / CGFloat(scale) * geo.size.height)
-        path.move(to: CGPoint(x: 0, y: yStart))
+      ZStack {
+        // Main line path
+        Path { path in
+          guard let first = points.first else { return }
+          let xStep = geo.size.width / CGFloat(points.count - 1)
+          let yStart = geo.size.height - ((CGFloat(first) - CGFloat(minVal)) / CGFloat(scale) * geo.size.height)
+          path.move(to: CGPoint(x: 0, y: yStart))
+          
+          for (index, value) in points.enumerated() {
+            let x = CGFloat(index) * xStep
+            let y = geo.size.height - ((CGFloat(value) - CGFloat(minVal)) / CGFloat(scale) * geo.size.height)
+            path.addLine(to: CGPoint(x: x, y: y))
+          }
+        }
+        .stroke(Color.green, lineWidth: 2)
         
-        for (index, value) in points.enumerated() {
-          let x = CGFloat(index) * xStep
-          let y = geo.size.height - ((CGFloat(value) - CGFloat(minVal)) / CGFloat(scale) * geo.size.height)
-          path.addLine(to: CGPoint(x: x, y: y))
+        // Dashed line at the last point's value
+        if let last = points.last {
+          Path { path in
+            let yLast = geo.size.height - ((CGFloat(last) - CGFloat(minVal)) / CGFloat(scale) * geo.size.height)
+            path.move(to: CGPoint(x: 0, y: yLast))
+            path.addLine(to: CGPoint(x: geo.size.width, y: yLast))
+          }
+          .stroke(style: StrokeStyle(lineWidth: 1, dash: [5, 3]))
+          .foregroundColor(.gray)
         }
       }
-      .stroke(Color.green, lineWidth: 2)
     }
   }
 }
 
-struct PortfolioWidgetEntryView : View {
+struct PortfolioWidgetEntryView: View {
   @Environment(\.widgetFamily) var family
   var entry: PortfolioProvider.Entry
   
   var body: some View {
-    switch family {
-    case .systemSmall:
-      smallView
-    case .systemMedium:
-      mediumView
-    case .systemLarge:
-      largeView
-    @unknown default:
-      smallView
+    if family == .systemMedium {
+      VStack(alignment: .center, spacing: 8) {
+        HStack() {
+          Spacer()
+          // Logo always in the top right
+          Image("logo")
+            .resizable()
+            .frame(width: logoSize(), height: logoSize())
+        }
+        
+        HStack(alignment: .top, spacing: 12) {
+          VStack(alignment: .leading, spacing: 4) {
+            headerSection
+            changeSection
+            Spacer()
+            timeSection
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          
+          
+          chartSection
+            .frame(maxWidth: .infinity)
+        }
+      }
+      .containerBackground(Color.white, for: .widget)
+    } else if family == .systemSmall {
+      VStack(alignment: .leading, spacing: 8) {
+        HStack() {
+          chartSection
+            .frame(height: chartHeight())
+          Spacer()
+          // Logo always in the top right
+          Image("logo")
+            .resizable()
+            .frame(width: logoSize(), height: logoSize())
+        }
+  
+        VStack(alignment: .leading, spacing: 4) {
+          headerSection
+          changeSection
+          Spacer()
+          timeSection
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .containerBackground(Color.white, for: .widget)
+    } else {
+      ZStack(alignment: .topTrailing) {
+        // Small & Large: Stack everything vertically
+        VStack(alignment: .leading, spacing: verticalSpacing()) {
+          if family == .systemLarge {
+            Text("Portfolio")
+              .font(.headline)
+          }
+          
+          headerSection
+          changeSection
+          
+          chartSection
+            .frame(height: chartHeight())
+          
+          if family == .systemLarge {
+            // Additional info for large
+            Text("Last updated: \(entry.date, style: .time)")
+              .font(.caption)
+              .foregroundColor(.secondary)
+          }
+          
+          HStack {
+            Spacer()
+            timeSection
+          }
+        }
+        .padding()
+      
+        // Logo always in the top right
+        Image("logo")
+          .resizable()
+          .frame(width: logoSize(), height: logoSize())
+          .padding([.top, .trailing], 8)
+      }
+      .containerBackground(Color.white, for: .widget)
     }
   }
   
-  private var smallView: some View {
-    VStack(alignment: .leading) {
+  // MARK: - Helper Subviews
+  
+  private var headerSection: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 4) {
       Text(entry.data.currentValue.formatted(.currency(code: "USD")))
-        .font(.system(size: 16, weight: .bold))
-      Text("\(entry.data.dailyChangePercent, format: .percent.precision(.fractionLength(2)))")
-        .font(.caption)
-        .foregroundColor(entry.data.dailyChange >= 0 ? .green : .red)
-      LineChart(history: entry.data.history)
+        .font(.system(size: mainValueFontSize(), weight: .bold))
+        .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
     }
-    .padding()
-    .containerBackground(Color.white, for: .widget)
   }
   
-  private var mediumView: some View {
-    HStack {
-      VStack(alignment: .leading, spacing: 4) {
-        Text(entry.data.currentValue.formatted(.currency(code: "USD")))
-          .font(.system(size: 20, weight: .bold))
-        HStack {
+  private var changeSection: some View {
+    let isPositive = entry.data.dailyChange >= 0
+    let changeColor = isPositive ? Color.green : Color.red
+    
+    // For large and medium, show both value & percent change
+    // For small, we currently show just percent
+    if family == .systemSmall {
+      return AnyView(
+        Text("\(entry.data.dailyChangePercent, format: .percent.precision(.fractionLength(2)))")
+          .font(.body)
+          .foregroundColor(changeColor)
+      )
+    } else {
+      return AnyView(
+        HStack(spacing: 2) {
           Text(entry.data.dailyChange.formatted(.currency(code: "USD")))
           Text("(\(entry.data.dailyChangePercent, format: .number.precision(.fractionLength(2)))%)")
         }
-        .font(.caption)
-        .foregroundColor(entry.data.dailyChange >= 0 ? .green : .red)
-        
-        Spacer()
-      }
-      .padding()
-      
-      LineChart(history: entry.data.history)
-        .padding()
+          .font(.caption)
+          .foregroundColor(changeColor)
+      )
     }
-    .containerBackground(Color.white, for: .widget)
   }
   
-  private var largeView: some View {
-    VStack(alignment: .leading) {
-      Text("Portfolio")
-        .font(.headline)
-      Text(entry.data.currentValue.formatted(.currency(code: "USD")))
-        .font(.system(size: 24, weight: .bold))
-      Text("\(entry.data.dailyChange.formatted(.currency(code: "USD"))) (\(entry.data.dailyChangePercent, format: .number.precision(.fractionLength(2)))%)")
-        .font(.subheadline)
-        .foregroundColor(entry.data.dailyChange >= 0 ? .green : .red)
-      
-      LineChart(history: entry.data.history)
-        .frame(height: 100)
-        .padding(.top)
-      
-      // Additional details, maybe date range or other metrics
-      Text("Last updated: \(entry.date, style: .time)")
-        .font(.caption)
-        .foregroundColor(.secondary)
+  private var chartSection: some View {
+    LineChart(history: entry.data.history)
+  }
+  
+  private var timeSection: some View {
+    Text(relativeTimeString(since: entry.date))
+      .font(.caption2)
+      .foregroundColor(.gray)
+  }
+  
+  // MARK: - Sizing & Styling Helpers
+  
+  private func mainValueFontSize() -> CGFloat {
+    switch family {
+    case .systemSmall: return 24
+    case .systemMedium: return 20
+    case .systemLarge: return 24
+    default: return 16
     }
-    .padding()
-    .containerBackground(Color.white, for: .widget)
+  }
+  
+  private func logoSize() -> CGFloat {
+    switch family {
+    case .systemSmall: return 24
+    case .systemMedium: return 24
+    case .systemLarge: return 36
+    default: return 20
+    }
+  }
+  
+  private func chartHeight() -> CGFloat {
+    // Different chart heights for each size
+    switch family {
+    case .systemSmall: return 24
+    case .systemMedium: return 60
+    case .systemLarge: return 80
+    default: return 50
+    }
+  }
+  
+  private func verticalSpacing() -> CGFloat {
+    // Slightly more spacing on larger widgets
+    switch family {
+    case .systemLarge: return 6
+    default: return 4
+    }
+  }
+  
+  private func relativeTimeString(since date: Date) -> String {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.unitsStyle = .short
+    return formatter.localizedString(for: date, relativeTo: Date())
   }
 }
 
-
-
+// The rest remains the same
 struct PortfolioProvider: TimelineProvider {
   func placeholder(in context: Context) -> PortfolioEntry {
     PortfolioEntry(date: Date(), data: WidgetData(
@@ -122,21 +238,16 @@ struct PortfolioProvider: TimelineProvider {
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<PortfolioEntry>) -> ()) {
-    // Fetch data from shared container
     let data = loadDataFromSharedStore()
     let entry = PortfolioEntry(date: Date(), data: data)
     
-    // Refresh after, say, 15 minutes or when data changes
     let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
     let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
     
     completion(timeline)
   }
   
-  // Mock function to load data.
-  // In production, load from UserDefaults with App Group or a shared file.
   func loadDataFromSharedStore() -> WidgetData {
-    // Example data for demonstration.
     return WidgetData(
       currentValue: 21815.99,
       dailyChange: 245.85,
@@ -161,8 +272,6 @@ struct PortfolioEntry: TimelineEntry {
   let data: WidgetData
 }
 
-
-
 @main
 struct PortfolioWidget: Widget {
   let kind: String = "PortfolioWidget"
@@ -176,7 +285,6 @@ struct PortfolioWidget: Widget {
     .description("View your portfolio value and daily changes.")
   }
 }
-
 
 #if DEBUG
 struct PortfolioWidgetEntryView_Previews: PreviewProvider {
@@ -203,15 +311,12 @@ struct PortfolioWidgetEntryView_Previews: PreviewProvider {
   
   static var previews: some View {
     Group {
-      // Small Size Preview
       PortfolioWidgetEntryView(entry: entry)
         .previewContext(WidgetPreviewContext(family: .systemSmall))
       
-      // Medium Size Preview
       PortfolioWidgetEntryView(entry: entry)
         .previewContext(WidgetPreviewContext(family: .systemMedium))
       
-      // Large Size Preview
       PortfolioWidgetEntryView(entry: entry)
         .previewContext(WidgetPreviewContext(family: .systemLarge))
     }

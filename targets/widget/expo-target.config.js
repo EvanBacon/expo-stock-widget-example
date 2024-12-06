@@ -5,6 +5,9 @@ module.exports = {
   colors: {
     $accent: "steelblue",
   },
+  images: {
+    logo: "../../assets/images/expo.png",
+  },
   entitlements: {
     "com.apple.security.application-groups": ["group.bacon.data"],
   },
