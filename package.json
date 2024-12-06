@@ -5,16 +5,18 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "nprebuild": "expo prebuild --template node_modules/@bacons/apple-targets/prebuild-blank.tgz"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^0.1.2",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
