@@ -223,48 +223,68 @@ struct PortfolioWidgetEntryView: View {
 
 // The rest remains the same
 struct PortfolioProvider: TimelineProvider {
-  func placeholder(in context: Context) -> PortfolioEntry {
-    PortfolioEntry(date: Date(), data: WidgetData(
-      currentValue: 21815.99,
-      dailyChange: 245.85,
-      dailyChangePercent: 1.14,
-      history: sampleHistory()
-    ))
-  }
-  
-  func getSnapshot(in context: Context, completion: @escaping (PortfolioEntry) -> ()) {
-    let entry = PortfolioEntry(date: Date(), data: loadDataFromSharedStore())
-    completion(entry)
-  }
-  
-  func getTimeline(in context: Context, completion: @escaping (Timeline<PortfolioEntry>) -> ()) {
-    let data = loadDataFromSharedStore()
-    let entry = PortfolioEntry(date: Date(), data: data)
-    
-    let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
-    let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-    
-    completion(timeline)
-  }
-  
-  func loadDataFromSharedStore() -> WidgetData {
-    return WidgetData(
-      currentValue: 21815.99,
-      dailyChange: 245.85,
-      dailyChangePercent: 1.14,
-      history: sampleHistory()
-    )
-  }
-  
-  func sampleHistory() -> [PortfolioData] {
-    var data: [PortfolioData] = []
-    let baseTime = Date().addingTimeInterval(-3600 * 24)
-    for i in 0..<20 {
-      let value = 20000 + Double(i) * 10 + Double.random(in: -50...50)
-      data.append(PortfolioData(timestamp: baseTime.addingTimeInterval(Double(i)*3600), value: value))
+   func placeholder(in context: Context) -> PortfolioEntry {
+        PortfolioEntry(date: Date(), data: defaultData())
     }
-    return data
-  }
+
+    func getSnapshot(in context: Context, completion: @escaping (PortfolioEntry) -> ()) {
+        let entry = PortfolioEntry(date: Date(), data: loadDataFromSharedStore())
+        completion(entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PortfolioEntry>) -> ()) {
+        let data = loadDataFromSharedStore()
+        let entry = PortfolioEntry(date: Date(), data: data)
+        
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+        
+        completion(timeline)
+    }
+
+    // Update this function to load from UserDefaults
+    func loadDataFromSharedStore() -> WidgetData {
+        // Here's where data is read from UserDefaults. Change the suite name to match your app group entitlements.
+        let sharedDefaults = UserDefaults(suiteName: "group.bacon.data")
+
+        let currentValue = sharedDefaults?.double(forKey: "currentValue") ?? 21815.99
+        let dailyChange = sharedDefaults?.double(forKey: "dailyChange") ?? 245.85
+        let dailyChangePercent = sharedDefaults?.double(forKey: "dailyChangePercent") ?? 1.14
+        
+        var historyArray: [PortfolioData] = sampleHistory()
+        if let historyData = sharedDefaults?.data(forKey: "historyData") {
+            let decoder = JSONDecoder()
+            if let decodedHistory = try? decoder.decode([PortfolioData].self, from: historyData) {
+                historyArray = decodedHistory
+            }
+        }
+
+        return WidgetData(
+            currentValue: currentValue,
+            dailyChange: dailyChange,
+            dailyChangePercent: dailyChangePercent,
+            history: historyArray
+        )
+    }
+
+    func defaultData() -> WidgetData {
+        WidgetData(
+            currentValue: 21815.99,
+            dailyChange: 245.85,
+            dailyChangePercent: 1.14,
+            history: sampleHistory()
+        )
+    }
+
+    func sampleHistory() -> [PortfolioData] {
+        var data: [PortfolioData] = []
+        let baseTime = Date().addingTimeInterval(-3600 * 24)
+        for i in 0..<20 {
+            let value = 20000 + Double(i) * 10 + Double.random(in: -50...50)
+            data.append(PortfolioData(timestamp: baseTime.addingTimeInterval(Double(i)*3600), value: value))
+        }
+        return data
+    }
 }
 
 struct PortfolioEntry: TimelineEntry {

@@ -1,12 +1,12 @@
 import Foundation
 
-struct PortfolioData: Identifiable, Hashable {
-    let id = UUID()
+struct PortfolioData: Identifiable, Codable {
+    var id = UUID()
     let timestamp: Date
     let value: Double
 }
 
-struct WidgetData {
+struct WidgetData: Codable {
     var currentValue: Double
     var dailyChange: Double
     var dailyChangePercent: Double
