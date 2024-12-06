@@ -257,7 +257,7 @@ struct PortfolioProvider: TimelineProvider {
             let isoFormatter = ISO8601DateFormatter()
             isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-          // Support fractional seconds (JS Date format)
+          // Support fractional seconds (JS Date format): new Date().toISOString()
             decoder.dateDecodingStrategy = .custom { decoder in
                 let container = try decoder.singleValueContainer()
                 let dateString = try container.decode(String.self)

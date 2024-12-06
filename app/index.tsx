@@ -21,18 +21,20 @@ function updateWidget({
     SmartSettings.set("dailyChange", dailyChange, appGroup);
     SmartSettings.set("dailyChangePercent", dailyChangePercent, appGroup);
 
-    const updatedHistory = [
-      {
-        id: "1",
-        timestamp: new Date(Date.now() - 3600 * 1000).toISOString(),
-        value: 22000.0,
-      },
-      {
-        id: "2",
-        timestamp: new Date().toISOString(),
-        value: 22050.0,
-      },
-    ];
+    // Generate fake stock history data. like:
+    const baseTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const updatedHistory: { timestamp: string; value: number }[] = new Array(24)
+      .fill(0)
+      .map((_, index) => {
+        const value = 20000 + index * 10 + Math.random() * 100 - 50;
+        return {
+          timestamp: new Date(
+            baseTime.getTime() + index * 60 * 60 * 1000
+          ).toISOString(),
+          value,
+        };
+      });
+
     SmartSettings.storeData("historyData", updatedHistory, appGroup);
     SmartSettings.reloadAllTimelines();
   }
