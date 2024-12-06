@@ -254,9 +254,32 @@ struct PortfolioProvider: TimelineProvider {
         var historyArray: [PortfolioData] = sampleHistory()
         if let historyData = sharedDefaults?.data(forKey: "historyData") {
             let decoder = JSONDecoder()
-            if let decodedHistory = try? decoder.decode([PortfolioData].self, from: historyData) {
-                historyArray = decodedHistory
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+          // Support fractional seconds (JS Date format)
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let dateString = try container.decode(String.self)
+                if let date = isoFormatter.date(from: dateString) {
+                    return date
+                }
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format: \(dateString)")
             }
+
+            do {
+                let decodedHistory = try decoder.decode([PortfolioData].self, from: historyData)
+                historyArray = decodedHistory
+            } catch {
+                // If decoding fails, log the error to see what's wrong:
+                print("Failed to decode history data: \(error)")
+                
+                // You can also print the raw JSON to see what you're getting:
+                if let jsonString = String(data: historyData, encoding: .utf8) {
+                    print("Raw historyData JSON: \(jsonString)")
+                }
+            }
+            
         }
 
         return WidgetData(

@@ -1,9 +1,15 @@
 import Foundation
 
 struct PortfolioData: Identifiable, Codable {
-    var id = UUID()
+    let id = UUID()
     let timestamp: Date
     let value: Double
+
+    // By not including `id` in CodingKeys, it won't be decoded from JSON
+    enum CodingKeys: String, CodingKey {
+        case timestamp
+        case value
+    }
 }
 
 struct WidgetData: Codable {

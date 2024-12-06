@@ -14,15 +14,26 @@ function updateWidget({
   dailyChange: number;
   dailyChangePercent: number;
 }) {
+  const appGroup = "group.bacon.data";
   if (process.env.EXPO_OS === "ios") {
     // Update the iOS widget with the latest data.
-    SmartSettings.set("currentValue", currentValue, "group.bacon.data");
-    SmartSettings.set("dailyChange", dailyChange, "group.bacon.data");
-    SmartSettings.set(
-      "dailyChangePercent",
-      dailyChangePercent,
-      "group.bacon.data"
-    );
+    SmartSettings.set("currentValue", currentValue, appGroup);
+    SmartSettings.set("dailyChange", dailyChange, appGroup);
+    SmartSettings.set("dailyChangePercent", dailyChangePercent, appGroup);
+
+    const updatedHistory = [
+      {
+        id: "1",
+        timestamp: new Date(Date.now() - 3600 * 1000).toISOString(),
+        value: 22000.0,
+      },
+      {
+        id: "2",
+        timestamp: new Date().toISOString(),
+        value: 22050.0,
+      },
+    ];
+    SmartSettings.storeData("historyData", updatedHistory, appGroup);
     SmartSettings.reloadAllTimelines();
   }
 }
