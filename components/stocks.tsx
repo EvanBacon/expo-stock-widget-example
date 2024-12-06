@@ -8,33 +8,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Generate random price changes with controlled volatility
+// Generate price changes with upward bias
 const generateNewPrice = (basePrice) => {
-  const volatilityPercentage = 0.1; // 0.1% volatility
-  const change = basePrice * volatilityPercentage * (Math.random() * 2 - 1);
-  return Number((basePrice + change).toFixed(2));
+  const upwardBias = basePrice * 0.001; // 0.1% upward trend
+  const volatility = basePrice * 0.002; // 0.2% volatility
+  const randomWalk = (Math.random() * 2 - 0.8) * volatility; // Biased towards positive
+  return Number((basePrice + upwardBias + randomWalk).toFixed(2));
 };
 
-// Generate historical data points that maintain value range
+// Generate historical data with upward trend
 const generateHistoricalData = (baseValue, numPoints = 24) => {
-  const volatility = baseValue * 0.02; // 2% volatility range
   const data = [];
-  let currentValue = baseValue;
+  let currentValue = baseValue * 0.95; // Start slightly lower
 
   for (let i = 0; i < numPoints; i++) {
     const timestamp = new Date(Date.now() - (numPoints - i) * 30 * 60 * 1000);
 
-    // Generate change that's mean-reverting around baseValue
-    const distanceFromBase = currentValue - baseValue;
-    const meanReversion = -distanceFromBase * 0.1; // Pull back towards base value
-    const randomWalk = (Math.random() * 2 - 1) * volatility;
-    currentValue = currentValue + meanReversion + randomWalk;
+    // Add upward trend with some volatility
+    const upwardTrend = currentValue * 0.002; // 0.2% upward trend
+    const volatility = currentValue * 0.003; // 0.3% volatility
+    const randomWalk = (Math.random() * 2 - 0.8) * volatility; // Biased random walk
 
-    // Ensure value stays within reasonable bounds
-    currentValue = Math.max(
-      baseValue * 0.9,
-      Math.min(baseValue * 1.1, currentValue)
-    );
+    currentValue = currentValue + upwardTrend + randomWalk;
 
     data.push({
       timestamp: timestamp.toISOString(),
