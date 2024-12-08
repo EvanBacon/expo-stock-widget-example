@@ -224,7 +224,7 @@ const HomePage = ({
               className={`px-4 py-1 rounded-full text-sm ${
                 range === "1M"
                   ? "bg-[#0A84FF] text-white"
-                  : "bg-[#2C2C2E] dark:text-[#98989F]"
+                  : "dark:bg-[#2C2C2E] dark:text-[#98989F]"
               }`}
             >
               {range}

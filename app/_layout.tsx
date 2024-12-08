@@ -15,7 +15,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
-          headerTransparent: true,
+          headerTransparent: process.env.EXPO_OS === "ios",
           headerBlurEffect: "systemChromeMaterial",
           headerShadowVisible: true,
           headerLargeTitleShadowVisible: false,
@@ -25,23 +25,26 @@ export default function RootLayout() {
           },
           headerLargeTitle: true,
           title: "Expo Stocks",
-          headerRight: () => (
-            <Button
-              onPress={() => {
-                // Perform reload action
-                console.log("Reload button pressed");
-                updateWidget({
-                  currentValue: Math.random() * 1000,
-                  dailyChange: Math.random() * 10,
-                  dailyChangePercent: Math.random(),
-                  // currentValue: Math.random() * 1000,
-                  // dailyChange: Math.random() * 10,
-                  // dailyChangePercent: Math.random(),
-                });
-              }}
-              title="Reload"
-            />
-          ),
+          headerRight:
+            process.env.EXPO_OS === "ios"
+              ? () => (
+                  <Button
+                    onPress={() => {
+                      // Perform reload action
+                      console.log("Reload button pressed");
+                      updateWidget({
+                        currentValue: Math.random() * 1000,
+                        dailyChange: Math.random() * 10,
+                        dailyChangePercent: Math.random(),
+                        // currentValue: Math.random() * 1000,
+                        // dailyChange: Math.random() * 10,
+                        // dailyChangePercent: Math.random(),
+                      });
+                    }}
+                    title="Reload"
+                  />
+                )
+              : undefined,
         }}
       ></Stack>
     </ThemeProvider>
