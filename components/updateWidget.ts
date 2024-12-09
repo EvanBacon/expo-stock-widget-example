@@ -1,6 +1,8 @@
-import SmartSettings from "local:smart-settings";
+import SmartSettings, { AppGroupStorage } from "local:smart-settings";
 
 const appGroup = "group.bacon.data";
+
+const storage = new AppGroupStorage(appGroup);
 
 export function updateWidget({
   currentValue,
@@ -15,12 +17,12 @@ export function updateWidget({
 }) {
   if (process.env.EXPO_OS === "ios") {
     // Update the iOS widget with the latest data.
-    SmartSettings.set("currentValue", currentValue, appGroup);
-    SmartSettings.set("dailyChange", dailyChange, appGroup);
-    SmartSettings.set("dailyChangePercent", dailyChangePercent, appGroup);
+    storage.set("currentValue", currentValue);
+    storage.set("dailyChange", dailyChange);
+    storage.set("dailyChangePercent", dailyChangePercent);
 
     if (historyData) {
-      SmartSettings.storeData("historyData", historyData, appGroup);
+      storage.set("historyData", historyData);
     } else {
       // Generate fake stock history data. like:
       const baseTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -38,8 +40,9 @@ export function updateWidget({
           };
         });
 
-      SmartSettings.storeData("historyData", updatedHistory, appGroup);
+      storage.set("historyData", updatedHistory);
     }
-    SmartSettings.reloadAllTimelines();
+
+    SmartSettings.reloadWidget();
   }
 }
