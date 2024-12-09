@@ -14,7 +14,6 @@ public class SmartSettingsModule: Module {
             WidgetCenter.shared.reloadAllTimelines()
         }
 
-
         // Function that updates the widget's history data in shared UserDefaults.
         // Arguments:
         // - history: [[String: Any]] array representing history items from JS.
@@ -22,16 +21,15 @@ public class SmartSettingsModule: Module {
         // - forKey: String for the key to store the encoded history.
         AsyncFunction("storeData") { (forKey: String, dataArray: [[String: Any]], suiteName: String?) -> Bool in
             // Convert the incoming array of dictionaries directly to JSON data
-        do {
-            let userDefaults = UserDefaults(suiteName: suiteName)
-
-            let jsonData = try JSONSerialization.data(withJSONObject: dataArray, options: [])
-            userDefaults?.set(jsonData, forKey: forKey)
-            return true
-        } catch {
-            // If encoding fails for some reason, return false
-            return false
-        }
+            do {
+                let userDefaults = UserDefaults(suiteName: suiteName)
+                let jsonData = try JSONSerialization.data(withJSONObject: dataArray, options: [])
+                userDefaults?.set(jsonData, forKey: forKey)
+                return true
+            } catch {
+                // If encoding fails for some reason, return false
+                return false
+            }
         }
     }
 }

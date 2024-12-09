@@ -12,14 +12,17 @@
       "appleTeamId": "QQ57RJ5UTD",
       "bundleIdentifier": "com.bacon.stock-widget-example",
       "entitlements": {
-        "com.apple.security.application-groups": ["group.bacon.data"]
+        "com.apple.security.application-groups": [
+          "group.bacon.data"
+        ]
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bacon.stockwidgetexample"
     },
     "web": {
       "output": "static",
