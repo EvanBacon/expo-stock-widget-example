@@ -1,8 +1,8 @@
-import SmartSettings, { AppGroupStorage } from "local:smart-settings";
+import { WidgetStorage } from "local:widget-storage";
 
 const appGroup = "group.bacon.data";
 
-const storage = new AppGroupStorage(appGroup);
+const storage = new WidgetStorage(appGroup);
 
 export function updateWidget({
   currentValue,
@@ -43,6 +43,6 @@ export function updateWidget({
       storage.set("historyData", updatedHistory);
     }
 
-    SmartSettings.reloadWidget();
+    WidgetStorage.reloadWidget();
   }
 }

@@ -14,7 +14,7 @@ type NativeModule = {
   ): boolean;
 };
 
-const nativeModule = (expo?.modules?.SmartSettings ?? {
+const nativeModule = (expo?.modules?.WidgetStorage ?? {
   setInt() {},
   reloadWidget() {},
   setObject() {},
@@ -36,8 +36,12 @@ nativeModule.setObject = (
   return originalSetObject(key, value, suite);
 };
 
-export class AppGroupStorage {
-  constructor(private readonly suite: string) {}
+export class WidgetStorage {
+  static reloadWidget(name?: string) {
+    nativeModule.reloadWidget(name);
+  }
+
+  constructor(private readonly appGroup: string) {}
 
   set(
     key: string,
@@ -48,15 +52,15 @@ export class AppGroupStorage {
       | Array<Record<string, string | number>>
   ) {
     if (typeof value === "string" || typeof value === "number") {
-      nativeModule.setInt(key, value, this.suite);
+      nativeModule.setInt(key, value, this.appGroup);
     } else if (Array.isArray(value)) {
-      nativeModule.setArray(key, value, this.suite);
+      nativeModule.setArray(key, value, this.appGroup);
     } else if (value == null) {
-      nativeModule.remove(key, this.suite);
+      nativeModule.remove(key, this.appGroup);
     } else {
-      nativeModule.setObject(key, value, this.suite);
+      nativeModule.setObject(key, value, this.appGroup);
     }
   }
 }
 
-export default nativeModule;
+export default WidgetStorage;
