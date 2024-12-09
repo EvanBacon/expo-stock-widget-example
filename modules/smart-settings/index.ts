@@ -12,17 +12,11 @@ type NativeModule = {
     value: Record<string, string | number>[],
     suite?: string
   ): boolean;
-  storeData(
-    key: string,
-    value: Array<Record<string, string | number>>,
-    suite?: string
-  ): void;
 };
 
 const nativeModule = (expo?.modules?.SmartSettings ?? {
   setInt() {},
   reloadWidget() {},
-  storeData() {},
   setObject() {},
   remove() {},
   setArray() {},
