@@ -46,7 +46,7 @@ export default function RootLayout() {
                 )
               : undefined,
         }}
-      ></Stack>
+      />
     </ThemeProvider>
   );
 }

@@ -1,8 +1,6 @@
-import { ExtensionStorage } from "local:widget-storage";
+import { ExtensionStorage } from "@bacons/apple-targets";
 
-const appGroup = "group.bacon.data";
-
-const storage = new ExtensionStorage(appGroup);
+const storage = new ExtensionStorage("group.bacon.data");
 
 export function updateWidget({
   currentValue,

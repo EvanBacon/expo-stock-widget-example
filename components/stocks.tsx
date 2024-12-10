@@ -9,7 +9,7 @@ import {
 } from "recharts";
 
 // Generate price changes with upward bias
-const generateNewPrice = (basePrice) => {
+const generateNewPrice = (basePrice: number) => {
   const upwardBias = basePrice * 0.001; // 0.1% upward trend
   const volatility = basePrice * 0.002; // 0.2% volatility
   const randomWalk = (Math.random() * 2 - 0.8) * volatility; // Biased towards positive
