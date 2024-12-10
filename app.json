@@ -4,7 +4,7 @@
     "slug": "stock-widget-example",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/universe.jpg",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,9 +12,11 @@
       "appleTeamId": "QQ57RJ5UTD",
       "bundleIdentifier": "com.bacon.stock-widget-example",
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.bacon.data"
-        ]
+        "com.apple.security.application-groups": ["group.bacon.data"]
+      },
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -50,6 +52,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5b13610f-a24d-4d26-8f7b-df6e644789b7"
+      }
     }
   }
 }
