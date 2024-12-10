@@ -14,7 +14,7 @@ type NativeModule = {
   ): boolean;
 };
 
-const nativeModule = (expo?.modules?.WidgetStorage ?? {
+const nativeModule = (expo?.modules?.ExtensionStorage ?? {
   setInt() {},
   reloadWidget() {},
   setObject() {},
@@ -36,7 +36,7 @@ nativeModule.setObject = (
   return originalSetObject(key, value, suite);
 };
 
-export class WidgetStorage {
+export class ExtensionStorage {
   static reloadWidget(name?: string) {
     nativeModule.reloadWidget(name);
   }
@@ -63,4 +63,4 @@ export class WidgetStorage {
   }
 }
 
-export default WidgetStorage;
+export default ExtensionStorage;

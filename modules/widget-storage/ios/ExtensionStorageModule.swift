@@ -2,9 +2,9 @@ import ExpoModulesCore
 import WidgetKit
 
 
-public class WidgetStorageModule: Module {
+public class ExtensionStorageModule: Module {
     public func definition() -> ModuleDefinition {
-        Name("WidgetStorage")
+        Name("ExtensionStorage")
         
         Function("remove") { (forKey: String, suiteName: String?) in
             UserDefaults(suiteName: suiteName)?.removeObject(forKey: forKey)

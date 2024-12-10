@@ -1,8 +1,8 @@
-import { WidgetStorage } from "local:widget-storage";
+import { ExtensionStorage } from "local:widget-storage";
 
 const appGroup = "group.bacon.data";
 
-const storage = new WidgetStorage(appGroup);
+const storage = new ExtensionStorage(appGroup);
 
 export function updateWidget({
   currentValue,
@@ -43,6 +43,6 @@ export function updateWidget({
       storage.set("historyData", updatedHistory);
     }
 
-    WidgetStorage.reloadWidget();
+    ExtensionStorage.reloadWidget();
   }
 }
