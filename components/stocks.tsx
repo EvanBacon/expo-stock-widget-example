@@ -17,7 +17,7 @@ const generateNewPrice = (basePrice: number) => {
 };
 
 // Generate historical data with upward trend
-const generateHistoricalData = (baseValue, numPoints = 24) => {
+const generateHistoricalData = (baseValue: number, numPoints = 24) => {
   const data = [];
   let currentValue = baseValue * 0.95; // Start slightly lower
 
