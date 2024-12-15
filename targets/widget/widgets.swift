@@ -1,3 +1,5 @@
+// Template widget
+
 import WidgetKit
 import SwiftUI
 import Foundation
@@ -340,7 +342,6 @@ struct PortfolioEntry: TimelineEntry {
   let data: WidgetData
 }
 
-@main
 struct PortfolioWidget: Widget {
   let kind: String = "PortfolioWidget"
   

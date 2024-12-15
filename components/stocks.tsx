@@ -155,7 +155,7 @@ const HomePage = ({
   }, [portfolioValue]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black container">
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
       {/* Header */}
       <div className="bg-white dark:bg-[#1C1C1E]">
         <div className="px-4 pt-2 pb-4">

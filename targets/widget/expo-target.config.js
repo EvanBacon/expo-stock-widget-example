@@ -1,7 +1,8 @@
-/** @type {import('@bacons/apple-targets').ConfigFunction} */
-module.exports = () => ({
+/** @type {import('@bacons/apple-targets/app.plugin').ConfigFunction} */
+module.exports = (config) => ({
   type: "widget",
-  images: {
-    logo: "../../assets/images/expo.png",
+  icon: "https://github.com/expo.png",
+  entitlements: {
+    /* Add entitlements */
   },
 });
