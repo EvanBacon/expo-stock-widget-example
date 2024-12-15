@@ -1,4 +1,3 @@
-import { updateWidget } from "@/components/updateWidget";
 import {
   DarkTheme,
   DefaultTheme,
@@ -6,7 +5,7 @@ import {
 } from "@react-navigation/native";
 
 import { Stack } from "expo-router";
-import { Button, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -25,26 +24,6 @@ export default function RootLayout() {
           },
           headerLargeTitle: true,
           title: "Expo Stocks",
-          headerRight:
-            process.env.EXPO_OS === "ios"
-              ? () => (
-                  <Button
-                    onPress={() => {
-                      // Perform reload action
-                      console.log("Reload button pressed");
-                      updateWidget({
-                        currentValue: Math.random() * 1000,
-                        dailyChange: Math.random() * 10,
-                        dailyChangePercent: Math.random(),
-                        // currentValue: Math.random() * 1000,
-                        // dailyChange: Math.random() * 10,
-                        // dailyChangePercent: Math.random(),
-                      });
-                    }}
-                    title="Reload"
-                  />
-                )
-              : undefined,
         }}
       />
     </ThemeProvider>
