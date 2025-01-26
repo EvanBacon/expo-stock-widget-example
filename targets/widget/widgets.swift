@@ -89,7 +89,7 @@ struct PortfolioWidgetEntryView: View {
         chartSection
           .frame(height: chartHeight())
         Spacer()
-        Image("logo")
+        Image("expo")
           .renderingMode(.template)
           .resizable()
           .frame(width: logoSize(), height: logoSize())
@@ -111,7 +111,7 @@ struct PortfolioWidgetEntryView: View {
     VStack(alignment: .center, spacing: 8) {
       HStack {
         Spacer()
-        Image("logo")
+        Image("expo")
           .renderingMode(.template)
           .resizable()
           .frame(width: logoSize(), height: logoSize())
@@ -161,7 +161,7 @@ struct PortfolioWidgetEntryView: View {
       }
       .padding()
       
-      Image("logo")
+      Image("expo")
         .renderingMode(.template)
         .resizable()
         .frame(width: logoSize(), height: logoSize())
